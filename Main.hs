@@ -42,6 +42,7 @@ main = do
      forkIO $ processPackets ns
      forever $ threadDelay (secs 10)
        where
+         secs = (*100000)
          handleConnections counter sock = forkIO . forever $ do
            client <- sAccept (sock :: TcpListenSocket IP4)
            n <- L8.pack . show <$> do atomicModifyIORef' counter $ \x -> (x + 1, x)
