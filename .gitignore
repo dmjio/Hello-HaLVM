@@ -1,0 +1,4 @@
+*.hi
+*.o
+hello-halvm
+result*

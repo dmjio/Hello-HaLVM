@@ -1,0 +1,17 @@
+name:                hello-halvm
+version:             0.1.0.0
+synopsis:            A simple Hello World HaLVM web server
+homepage:            hello-halvm.dmj.io
+license:             BSD3
+license-file:        LICENSE
+author:              David Johnson
+maintainer:          djohnson.m@gmail.com
+category:            Web
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+executable hello-halvm
+  main-is:             Main.hs
+  build-depends:       base >=4.9 && <5, hans, bytestring, HALVMCore
+  default-language:    Haskell2010
