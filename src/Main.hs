@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE CPP #-}
 module Main where
 
 import           Control.Concurrent (forkIO,threadDelay)
@@ -17,27 +18,22 @@ import           Hans.IP4.Dhcp.Client (DhcpLease(..),defaultDhcpConfig,dhcpClien
 import           Hans.IP4.Packet (pattern WildcardIP4)
 import           Hans.Nat
 import           Hans.Socket
-import           Hypervisor.Console
-import           Hypervisor.XenStore
 import           System.Environment (getArgs)
 import           System.Exit (exitFailure)
 
+import           Device ( getDevice )
+
 main :: IO ()
 main = do
-  () <$ initXenConsole
-  putStrLn "Initializing HaLVM"
-  xs <- initXenStore
   ns <- newNetworkStack defaultConfig
-  [nic] <- listDevices xs
-  print nic
-  dev <- addDevice xs ns nic defaultDeviceConfig
+  dev <- getDevice ns
   startDevice dev
-  maybeLeaseAddr <- dhcpClient ns defaultDhcpConfig dev
-  case maybeLeaseAddr of
+  maybeLease <- dhcpClient ns defaultDhcpConfig dev
+  case maybeLease of
     Nothing -> putStrLn "DHCP failed..."
     Just lease -> do
      counter <- newIORef 0
-     socket <- sListen ns defaultSocketConfig (dhcpAddr lease) 9001 10
+     socket <- sListen ns defaultSocketConfig (dhcpAddr lease) 80 10
      handleConnections counter socket
      forkIO $ processPackets ns
      forever $ threadDelay (secs 10)

@@ -13,5 +13,15 @@ cabal-version:       >=1.10
 
 executable hello-halvm
   main-is:             Main.hs
-  build-depends:       base >=4.9 && <5, hans, bytestring, HALVMCore
+  hs-source-dirs:      src
+  build-depends:       base >=4.9 && <5
+                     , hans
+                     , bytestring
+  if os(halvm)
+    hs-source-dirs: halvm-src
+    build-depends: HALVMCore
+  else
+    hs-source-dirs: linux-src
   default-language:    Haskell2010
+     
+
