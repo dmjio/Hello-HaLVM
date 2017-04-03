@@ -19,7 +19,6 @@ $ curl 10.0.1.183
 <!doctype html><html><head></head><body>HaLVM says Hello! You are request 0</body></html>%
 ```
 
-```
 To setup `tap` device
 ```shell
 nix-build && result/bin/setupTap.sh
@@ -30,7 +29,7 @@ To develop with linux `tap` device
 nix-shell
 ```
 
-To develop with halvm-ghc
+To develop with `halvm-ghc`
 ```shell
 nix-shell halvm-shell.nix
 ```
