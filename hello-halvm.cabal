@@ -20,8 +20,9 @@ executable hello-halvm
   if os(halvm)
     hs-source-dirs: halvm-src
     build-depends: HALVMCore
+    ghc-options: -with-rtsopts=-T
   else
     hs-source-dirs: linux-src
-  default-language:    Haskell2010
+  default-language: Haskell2010
      
 

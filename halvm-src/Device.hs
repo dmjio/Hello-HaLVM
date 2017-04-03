@@ -9,5 +9,4 @@ getDevice ns = do
   () <$ initXenConsole
   xs <- initXenStore
   [nic] <- listDevices xs
-  dev <- addDevice xs ns nic defaultDeviceConfig
-  pure dev
+  addDevice xs ns nic defaultDeviceConfig
