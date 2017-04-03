@@ -17,10 +17,10 @@ executable hello-halvm
   build-depends:       base >=4.9 && <5
                      , hans
                      , bytestring
+  ghc-options: -Wall
   if os(halvm)
     hs-source-dirs: halvm-src
     build-depends: HALVMCore
-    ghc-options: -with-rtsopts=-T
   else
     hs-source-dirs: linux-src
   default-language: Haskell2010

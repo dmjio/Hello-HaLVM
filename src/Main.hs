@@ -8,25 +8,14 @@ module Main where
 
 import           Control.Concurrent (forkIO,threadDelay)
 import           Control.Exception
-import           Control.Monad (forever, forM_, forM, replicateM_)
-import qualified Data.ByteString.Char8 as S8
+import           Control.Monad (forever, void)
 import qualified Data.ByteString.Lazy.Char8 as L8
-import qualified Data.Foldable as F
 import           Data.IORef
 import           Data.Monoid
 import           Device ( getDevice )
-import           GHC.Environment ( getFullArgs )
-import           GHC.RTS.Flags
-import           GHC.Stats
 import           Hans
-import           Hans.Device
-import           Hans.Dns
 import           Hans.IP4.Dhcp.Client (DhcpLease(..),defaultDhcpConfig,dhcpClient)
-import           Hans.IP4.Packet (pattern WildcardIP4)
-import           Hans.Nat
 import           Hans.Socket
-import           System.Environment (getArgs)
-import           System.Exit (exitFailure)
 
 showExceptions :: String -> IO a -> IO a
 showExceptions l m = m `catch` \ e ->
@@ -42,10 +31,10 @@ main = do
   dhcpClient ns defaultDhcpConfig dev >>= \case
     Nothing -> putStrLn "DHCP failed..."
     Just lease -> do
-     counter <- newIORef 0
+     counter <- newIORef (0 :: Int)
      putStrLn $ "Assigned IP: " ++ show (unpackIP4 (dhcpAddr lease))
      socket <- sListen ns defaultSocketConfig (dhcpAddr lease) 80 10
-     handleConnections counter socket
+     void $ handleConnections counter socket
      forever $ threadDelay (secs 10)
        where
          secs = (*1000000)
@@ -59,7 +48,7 @@ handleClient n sock = do
   let body = "HaLVM says Hello! You are request " <> n
       html = "<!doctype html><html><head></head><body>" <> body <> "</body></html>"
       size = L8.pack $ show (L8.length html)
-  sWrite sock $ L8.concat [
+  _ <- sWrite sock $ L8.concat [
      "HTTP/1.0 200 OK\r\nContent-Length: "
     , size
     , "\r\n\r\n"
