@@ -1,6 +1,6 @@
 Hello-HaLVM
 ====================
-An example of a "Hello World" `HaLVM` web-server running on the `Xen` Hypervisor.
+An example of a "Hello World" [`HaLVM`](https://github.com/GaloisInc/halvm) web-server running on the `Xen` Hypervisor.
 
 To build and run:
 ```shell
