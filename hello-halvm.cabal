@@ -17,7 +17,7 @@ executable hello-halvm
   build-depends:       base >=4.9 && <5
                      , hans
                      , bytestring
-  ghc-options: -Wall
+  ghc-options: -Wall -rtsopts -O2 "-with-rtsopts=-T"
   if os(halvm)
     hs-source-dirs: halvm-src
     build-depends: HALVMCore

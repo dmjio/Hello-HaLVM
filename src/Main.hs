@@ -15,12 +15,19 @@ import           Data.Monoid
 import           Device ( getDevice )
 import           Hans
 import           Hans.IP4.Dhcp.Client (DhcpLease(..),defaultDhcpConfig,dhcpClient)
+import           Hans.IP4.Packet (pattern WildcardIP4, readIP4)
 import           Hans.Socket
+
+import           GHC.Stats
+import           GHC.RTS.Flags
+import           GHC.Environment
 
 showExceptions :: String -> IO a -> IO a
 showExceptions l m = m `catch` \ e ->
   do print (l, e :: SomeException)
      throwIO e
+
+secs = (*100000)
 
 main :: IO ()
 main = do
@@ -31,29 +38,18 @@ main = do
   dhcpClient ns defaultDhcpConfig dev >>= \case
     Nothing -> putStrLn "DHCP failed..."
     Just lease -> do
-     counter <- newIORef (0 :: Int)
      putStrLn $ "Assigned IP: " ++ show (unpackIP4 (dhcpAddr lease))
-     socket <- sListen ns defaultSocketConfig (dhcpAddr lease) 80 10
-     void $ handleConnections counter socket
-     forever $ threadDelay (secs 10)
-       where
-         secs = (*1000000)
-         handleConnections counter socket = forkIO . forever $ do
-           client <- sAccept (socket :: TcpListenSocket IP4)
-           n <- L8.pack . show <$> do atomicModifyIORef' counter $ \x -> (x + 1, x)
-           () <$ forkIO (handleClient n client)
-
-handleClient :: L8.ByteString -> TcpSocket IP4 -> IO ()
-handleClient n sock = do
-  let body = "HaLVM says Hello! You are request " <> n
-      html = "<!doctype html><html><head></head><body>" <> body <> "</body></html>"
-      size = L8.pack $ show (L8.length html)
-  _ <- sWrite sock $ L8.concat [
-     "HTTP/1.0 200 OK\r\nContent-Length: "
-    , size
-    , "\r\n\r\n"
-    , html
-    , "\r\n"
-    ]
-  sClose sock
-                  
+     socket <- newUdpSocket ns defaultSocketConfig Nothing WildcardIP4 (Just 8080)
+     let sendData = sendto socket (packIP4 10 0 1 2) 8080
+         formatData f = L8.pack . show <$> f
+     print =<< do putStrLn "" >> getFullArgs
+     print =<< do putStrLn "" >> getGCFlags
+     print =<< do putStrLn "" >> getConcFlags
+     print =<< do putStrLn "" >> getMiscFlags
+     print =<< do putStrLn "" >> getDebugFlags
+     print =<< do putStrLn "" >> getCCFlags
+     print =<< do putStrLn "" >> getProfFlags
+     print =<< do putStrLn "" >> getTraceFlags
+     print =<< do putStrLn "" >> getTickyFlags
+     forever $ do
+       sendData =<< formatData getGCStats

@@ -24,7 +24,7 @@ let
     on_crash = "coredump-destroy"
   '';
   deployKernel = pkgs.writeScriptBin "deployKernel" ''
-    sudo xl create ${xenConfig} -c
+    sudo xl -vvvvv create ${xenConfig} -c
   '';
   setupTap = pkgs.writeScriptBin "setupTap" ''
     # edit this script at your leisure
